@@ -1,0 +1,70 @@
+﻿@{
+    ViewData["Title"] = "Домашняя";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Publish demo</h1>
+    <p>
+        Публикация проекта ASP на Azure
+    </p>
+    <h2>Хранение данных: файлы или БД?</h2>
+    <table border="1" cellspacing="0">
+        <tr>
+            <th></th>
+            <th>Файл</th>
+            <th>БД</th>
+        </tr>
+        <tr>
+            <td>Скорость доступа (получения данных)</td>
+            <td>Выше, значительно</td>
+            <td>Ниже, требуется авторизация и передача данных</td>
+        </tr>
+        <tr>
+            <td>Надежность, защищенность</td>
+            <td>Ниже, ограничено правами пользователя ОС</td>
+            <td>Выше, пользователи авторизуются дополнительно + данные шифруются</td>
+        </tr>
+        <tr>
+            <td>Выборка и поиск</td>
+            <td>Требуется самостоятельная реализация</td>
+            <td>Содержится в СУБД</td>
+        </tr>
+        <tr>
+            <td>Совместная работа</td>
+            <td>Практически нет</td>
+            <td>Полная поддержка</td>
+        </tr>
+    </table>
+    <p>
+        Вывод: файлы имеют преимущество при "отсоединенной" работе
+        (не совместной) с небольшими данными, не требующими персонализации
+        или защиты.
+    </p>
+    <form action="/Home/UserOpinion" class="container m-4" method="post">
+        <div class="row m-4">
+            <b class="col">Ник:</b>
+            <input class="col" name="Usernik" />
+        </div>
+        <div class="row m-4">
+            <b class="col">Ваше мнение:</b>
+            <input class="col" name="Comment" />
+        </div>
+
+        <input type="submit" class="btn btn-primary" value="Отправить" />
+    </form>
+
+    @ViewData["Mode"]
+
+    <div class="comments m-4">
+                @if (ViewData["Comments"] != null)
+                    @foreach (var com in (WebApplication1.Models.Opinion[])ViewData["Comments"])
+                    {
+                        <div class="col m-4">
+                            <hr />
+                            <b class="col-10">@com.Usernik</b>
+                            <i class="col-10">@com.Comment</i>
+                            <i class="col-10">@(@com.Date.Date == @DateTime.Now.Date ? @com.Date.TimeOfDay.ToString().Substring(0,8) : @com.Date)</i>
+                        </div>
+                        }
+            </div>
+        </div>

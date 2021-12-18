@@ -1,0 +1,155 @@
+﻿@{
+    ViewData["Title"] = "Переводчик";
+}
+<h1>Когнетиыные службы Azure на примере переводчика</h1>
+<p>Создание службы</p>
+<ol>
+    <li>
+        Заходим на портал Azure
+        (<a href="https://portal.azure.com/">сюда</a>)
+    </li>
+    <li>
+        Выбираем "+" добавить службу.
+        В строке поиска набираем "Translator".
+        Переходим в добавление службы "Переводчика"
+        (<a href="https://portal.azure.com/?Microsoft_Azure_Education_correlationId=2152d042-f785-4c8e-9dfb-144c7b882cb0#create/Microsoft.CognitiveServicesTextTranslation">сюда</a>)
+    </li>
+    <li>
+        Заполняем данные: выбираем подписку,
+        задаем имя для службы,
+        выбираем регион бизнес-интересов (Глобально - без региона),
+        выбираем ценовой план (F0 - бесплатно)
+        Нажимаем "просмотр и создание" -- "создать" -- "перейти на службу"
+    </li>
+    <li>
+        В окне служюы переходив на вкладку "Keys and Endpoint",
+        в ней необходимые данные для использования службы
+    </li>
+</ol>
+<p>Использование службы</p>
+<ol>
+    <li>
+        Создание новую страницу (окно, приложение).
+        В качестве констант (настроек, ini, env) переносим данные
+        о ключах и точке подключения
+    </li>
+    <li>
+        Находим документацию по конкретной служюы (Переводчик)
+        на сайт документации Microsoft
+        <a href="https://docs.microsoft.com/ru-ru/azure/cognitive-services/translator/quickstart-translator?tabs=csharp">сюда</a>
+    </li>
+    <li>
+        Уточняем все необходимое для запроса
+        <ul>
+            <li>Метод</li>
+            <li>Путь, в т.ч. ГЕТ-часть параметров</li>
+            <li>Протокол</li>
+            <li>Заголовок</li>
+            <li>Тело (если есть)</li>
+            <li>Структура (формат) ответ на запрос</li>
+        </ul>
+    </li>
+</ol>
+
+<hr />
+<form>
+    <select size="1" name="len_1">
+        <option selected value="en">Английски</option>
+        <option value="uk">Украиский</option>
+        <option value="ru">Руский</option>
+        <option value="de">Немецкий</option>
+        <option value="it">Итальянский</option>
+    </select>
+    <input type="text" name="txt" />
+    <select size="1" name="len_2">
+        <option>Выберите язык</option>
+        <option value="en">Английски</option>
+        <option value="uk">Украиский</option>
+        <option selected value="ru">Руский</option>
+        <option value="de">Немецкий</option>
+        <option value="it">Итальянский</option>
+    </select>
+    <i>@ViewData["ResultTranslation"]</i>
+    <button>Перевести</button>
+</form>
+<hr />
+<p>
+    @ViewData["resp"];
+    <br />
+    <b>From: @ViewData["txt"]</b>
+    @foreach(var word in (WebApplication1.Models.Translation[])ViewData["AllTranslate"])
+    {
+    <br />
+    <i>to: @word.text</i>
+    }
+</p>
+
+<hr />
+<h2>SPA - перевод страниц JS</h2>
+    <span>Исходный язык</span>
+    <select id="sourceLang">
+        <option value="en">EN</option>
+        <option value="ru">RU</option>
+        <option value="uk">UK</option>
+    </select>
+    <br />
+<textarea id="sourceText"></textarea>
+    <br />
+    <span>Язык перевода</span>
+    <select id="targetLang">
+        <option value="en">EN</option>
+        <option value="ru">RU</option>
+        <option value="uk">UK</option>
+    </select>
+    <br />
+    <button id="btnTranslate">Перевести</button>
+    <p id="targetText"></p>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const btnTranslate = document.getElementById("btnTranslate");
+            if (!btnTranslate) throw "btnTranslate not found";
+            btnTranslate.onclick = function () {
+
+                const sourceLang = document.getElementById("sourceLang");
+                if (!sourceLang) throw "sourceLang not found";
+                const sourceText = document.getElementById("sourceText");
+                if (!sourceText) throw "sourceText not found";
+                const targetLang = document.getElementById("targetLang");
+                if (!targetLang) throw "targetLang not found";
+                const targetText = document.getElementById("targetText");
+                if (!targetText) throw "targetText not found";
+
+                const sLang = sourceLang.value;
+                const tLang = targetLang.value;
+                const sText = sourceText.value;
+
+                console.log(sLang, tLang, sText);
+
+                let res = fetch("/Home/ApiKey").then(r => r.json()).then(commits => console.log(commits[0].Key, commits[1].Location));
+                console.log(res);
+                return;
+
+                fetch("/Home/ApiKey").then(r => r.json()).then(commits => {
+                    const endpoint = "https://api.cognitive.microsofttranslator.com";
+                    const path = `/translate?api-version=3.0&from=${sLang}&to=${tLang}`;
+                    const body = [{ text: sText }];
+                    fetch(endpoint + path, {
+                        method: 'post',
+                        headers: {
+                            'Ocp-Apim-Subscription-Key': commits[0].Key,
+                            'Ocp-Apim-Subscription-Region': commits[1].Location,
+                            'Content-type': 'application/json',
+                        },
+                        body: JSON.stringify(body),
+                    }).then((r) => r.json())
+                        .then((res) => {
+                            console.log(res[0].translations);
+                            res[0].translations.forEach(element =>
+                                targetText.innerText = element.text);
+                        });
+                });
+            }
+        });
+    </script>

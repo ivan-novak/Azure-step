@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Cosmos";
+}
+<div class="comments m-4">
+    @if (ViewData["User"] != null)
+        @foreach (var opinions in (WebApplication1.Models.UserOpinion[])ViewData["User"])
+        {
+            <a>ID[@opinions.id]</a><br /> <b>@opinions.name :</b> <i>@opinions.text</i> <i>@opinions.year</i><br /><hr />
+        }
+</div>
+
+<form method="post" action="/Home/CosmosOpinion">
+    <b>Name : </b><input name="name" type="text"><br />
+    <b>Text : </b><input name="text" type="text"><br />
+    <b>Year : </b><input name="year" type="text"><br />
+    <button>Add</button>
+</form>
